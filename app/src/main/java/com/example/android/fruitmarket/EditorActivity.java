@@ -19,11 +19,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -36,9 +36,7 @@ import android.widget.Toast;
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -46,7 +44,7 @@ import butterknife.ButterKnife;
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String LOG_TAG = EditorActivity.class.getSimpleName();
+    //public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
     /**
      * Photo request code
@@ -78,8 +76,8 @@ public class EditorActivity extends AppCompatActivity implements
      * Content URI for the existing fruit (null if it's a new fruit)
      */
     private Uri mCurrentFruitUri;
-    /** Default URI when there isn't any image of the fruit */
-    private Uri mFruitPhotoUri;
+
+    private byte[] imageByte;
 
     /** Boolean flag that keeps track of whether the fruit has been edited (true) or not (false) */
     private boolean mFruitHasChanged = false;
@@ -100,6 +98,9 @@ public class EditorActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_new_image);
+        imageByte = Utils.getBytes(bm); // setting default system image icon in case user didnt upload a image
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new fruit or editing an existing one.
@@ -156,9 +157,7 @@ public class EditorActivity extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PHOTO_REQUEST_CODE && resultCode == RESULT_OK) {
-            mFruitPhotoUri = data.getData();
-
-            mPictureImageView.setImageBitmap(getBitmapFromUri(mFruitPhotoUri));
+            onSelectFromGalleryResult(data);
         }
     }
 
@@ -177,7 +176,8 @@ public class EditorActivity extends AppCompatActivity implements
         // and check if all the fields in the editor are blank
         if (mCurrentFruitUri == null &&
                 TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) ||
-                TextUtils.isEmpty(quantityString) || TextUtils.isEmpty(supplierString) || mFruitPhotoUri == null) {
+                TextUtils.isEmpty(quantityString) || TextUtils.isEmpty(supplierString) ||
+                imageByte == null) {
             // Since no fields were modified, we can return early without creating a new fruit.
             // No need to create ContentValues and no need to do any ContentProvider operations.
             Toast.makeText(this, "Please, insert all required information.",
@@ -191,7 +191,7 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(FruitEntry.COLUMN_FRUIT_NAME, nameString);
         values.put(FruitEntry.COLUMN_FRUIT_PRICE, priceString);
         values.put(FruitEntry.COLUMN_FRUIT_SUPPLIER, supplierString);
-        values.put(FruitEntry.COLUMN_FRUIT_PICTURE, mFruitPhotoUri.toString());
+        values.put(FruitEntry.COLUMN_FRUIT_PICTURE, imageByte);
 
         // If the quantity is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
@@ -373,7 +373,7 @@ public class EditorActivity extends AppCompatActivity implements
             String supplier = cursor.getString(supplierColumnIndex);
             Double price = cursor.getDouble(priceColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
-            Uri currentPhotoUri = Uri.parse(cursor.getString(imageColumnIndex));
+            Bitmap image = Utils.getImage(cursor.getBlob(imageColumnIndex));
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
@@ -381,7 +381,7 @@ public class EditorActivity extends AppCompatActivity implements
             mSupplierEditText.setText(supplier);
             mQuantityEditText.setText(String.valueOf(quantity));
 
-            mPictureImageView.setImageBitmap(getBitmapFromUri(currentPhotoUri));
+            mPictureImageView.setImageBitmap(image);
         }
     }
 
@@ -402,7 +402,8 @@ public class EditorActivity extends AppCompatActivity implements
                 PackageManager.PERMISSION_GRANTED) {
             chooseFruitImage();
         } else {
-            Toast.makeText(this, R.string.permission, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.permission,
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -496,7 +497,8 @@ public class EditorActivity extends AppCompatActivity implements
      */
     public void updateFruitImage(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
                 chooseFruitImage();
             } else {
                 String[] permisionRequest = {Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -524,52 +526,18 @@ public class EditorActivity extends AppCompatActivity implements
         startActivityForResult(selectImage, PHOTO_REQUEST_CODE);
     }
 
-    public Bitmap getBitmapFromUri(Uri uri) {
-        if (uri == null || uri.toString().isEmpty())
-            return null;
-
-        // Get the dimensions of the View
-        int targetW = mPictureImageView.getWidth();
-        int targetH = mPictureImageView.getHeight();
-
-        InputStream input = null;
-        try {
-            input = this.getContentResolver().openInputStream(uri);
-
-            // Get the dimensions of the bitmap
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            bmOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(input, null, bmOptions);
-            input.close();
-
-            int photoW = bmOptions.outWidth;
-            int photoH = bmOptions.outHeight;
-
-            // Determine how much to scale down the image
-            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
-
-            // Decode the image file into a Bitmap sized to fill the View
-            bmOptions.inJustDecodeBounds = false;
-            bmOptions.inSampleSize = scaleFactor;
-            bmOptions.inPurgeable = true;
-
-            input = this.getContentResolver().openInputStream(uri);
-            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
-            input.close();
-            return bitmap;
-
-        } catch (FileNotFoundException fne) {
-            Log.e(LOG_TAG, "Failed to load image.", fne);
-            return null;
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Failed to load image.", e);
-            return null;
-        } finally {
+    private void onSelectFromGalleryResult(Intent data) {
+        Bitmap bm = null;
+        if (data != null) {
             try {
-                input.close();
-            } catch (IOException ignored) {
-
+                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+        mPictureImageView.setVisibility(View.VISIBLE);
+        mPictureImageView.setImageBitmap(bm);
+
+        this.imageByte = Utils.getBytes(bm);
     }
 }

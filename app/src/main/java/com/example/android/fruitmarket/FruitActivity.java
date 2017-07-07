@@ -13,11 +13,10 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,10 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -134,6 +129,10 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
                 return true;
             case R.id.action_delete:
                 showDeleteConfirmationDialog();
+                return true;
+            // Respond to a click on the "Up" arrow button in the app bar
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(FruitActivity.this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -241,7 +240,7 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
             int quantity = cursor.getInt(quantityColumnIndex);
             int quantityOrdered = cursor.getInt(qOrderedColumnIndex);
             Double total = cursor.getDouble(totalColumnIndex);
-            Uri currentPhotoUri = Uri.parse(cursor.getString(imageColumnIndex));
+            Bitmap image = Utils.getImage(cursor.getBlob(imageColumnIndex));
 
             // Update the views on the screen with the values from the database
             nameTextView.setText(name);
@@ -250,7 +249,7 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
             quantityTextView.setText(String.format("%s kg", String.valueOf(quantity)));
             quantityOrderedTextView.setText("Quantity ordered: " + quantityOrdered + " kg");
             totalTextView.setText("Total: " + total + " $/kg");
-            photoImageView.setImageBitmap(getBitmapFromUri(currentPhotoUri));
+            photoImageView.setImageBitmap(image);
         }
     }
 
@@ -306,54 +305,5 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
         intent.setData(currentFruitUri);
         startActivity(intent);
         finish();
-    }
-
-    public Bitmap getBitmapFromUri(Uri uri) {
-        if (uri == null || uri.toString().isEmpty())
-            return null;
-
-        // Get the dimensions of the View
-        int targetW = photoImageView.getWidth();
-        int targetH = photoImageView.getHeight();
-
-        InputStream input = null;
-        try {
-            input = this.getContentResolver().openInputStream(uri);
-
-            // Get the dimensions of the bitmap
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            bmOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(input, null, bmOptions);
-            input.close();
-
-            int photoW = bmOptions.outWidth;
-            int photoH = bmOptions.outHeight;
-
-            // Determine how much to scale down the image
-            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
-
-            // Decode the image file into a Bitmap sized to fill the View
-            bmOptions.inJustDecodeBounds = false;
-            bmOptions.inSampleSize = scaleFactor;
-            bmOptions.inPurgeable = true;
-
-            input = this.getContentResolver().openInputStream(uri);
-            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
-            input.close();
-            return bitmap;
-
-        } catch (FileNotFoundException fne) {
-            Log.e(LOG_TAG, "Failed to load image.", fne);
-            return null;
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Failed to load image.", e);
-            return null;
-        } finally {
-            try {
-                input.close();
-            } catch (IOException ioe) {
-
-            }
-        }
     }
 }
