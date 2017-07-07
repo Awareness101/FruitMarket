@@ -103,7 +103,7 @@ public class CatalogActivity extends AppCompatActivity implements
         // Use the {@link FruitEntry#CONTENT_URI} to indicate that we want to insert
         // into the fruits database table.
         // Receive the new content URI that will allow us to access Tomato's data in the future.
-        Uri newUri = getContentResolver().insert(FruitEntry.CONTENT_URI, values);
+        getContentResolver().insert(FruitEntry.CONTENT_URI, values);
         Toast.makeText(this, "Dummy data inserted", Toast.LENGTH_SHORT).show();
     }
 

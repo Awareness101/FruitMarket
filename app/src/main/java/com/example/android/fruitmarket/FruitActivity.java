@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,36 +31,24 @@ import butterknife.ButterKnife;
 
 public class FruitActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private Uri currentFruitUri;
-
     @Bind(R.id.fruit_image)
     ImageView photoImageView;
-
     @Bind(R.id.fruit_name)
     TextView nameTextView;
-
     @Bind(R.id.fruit_price)
     TextView priceTextView;
-
     @Bind(R.id.fruit_supplier)
     TextView supplierTextView;
-
     @Bind(R.id.fruit_quantity)
     TextView quantityTextView;
-
-    @Bind(R.id.quantity_ordered)
-    TextView quantityOrderedTextView;
-
-    @Bind(R.id.total_order)
-    TextView totalTextView;
-
-    @Bind(R.id.buy_icon)
-    ImageButton orderOne;
-
+    @Bind(R.id.increase_button)
+    Button increaseButton;
+    @Bind(R.id.decrease_button)
+    Button decreaseButton;
     @Bind(R.id.shipment_icon)
     ImageButton askMore;
-
-    private int stock, quantityOrdered = 0;
+    private Uri currentFruitUri;
+    private int stock;
 
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -72,10 +61,17 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
 
         getLoaderManager().initLoader(0, null, this);
 
-        orderOne.setOnClickListener(new View.OnClickListener() {
+        increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateView();
+                increaseQuantity();
+            }
+        });
+
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                decreaseQuantity();
             }
         });
 
@@ -87,20 +83,20 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
         });
     }
 
-    private void updateView() {
+    private void increaseQuantity() {
         String [] aux = quantityTextView.getText().toString().split(" ");
         stock = Integer.parseInt(aux[0]);
+        stock++;
+        quantityTextView.setText("" + stock + " kg");
+    }
 
-        String [] temp = priceTextView.getText().toString().split(" ");
-        double price = Double.parseDouble(temp[0]);
+    private void decreaseQuantity() {
+        String[] aux = quantityTextView.getText().toString().split(" ");
+        stock = Integer.parseInt(aux[0]);
 
         if(stock > 0){
             stock--;
             quantityTextView.setText("" + stock + " kg");
-            quantityOrdered++;
-            quantityOrderedTextView.setText("QUANTITY ORDERED: " + quantityOrdered + " kg");
-            double total = price * quantityOrdered;
-            totalTextView.setText("TOTAL: " + String.format("%.2f", total) + " $");
         } else {
             Toast.makeText(FruitActivity.this, R.string.no_stock, Toast.LENGTH_LONG).show();
         }
@@ -178,9 +174,9 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
 
             // Update the views on the screen with the values from the database
             nameTextView.setText(name);
-            priceTextView.setText(String.valueOf(price) + " $/kg");
+            priceTextView.setText(String.format("%s $/kg", String.valueOf(price)));
             supplierTextView.setText(supplier);
-            quantityTextView.setText(String.valueOf(quantity) + " kg");
+            quantityTextView.setText(String.format("%s kg", String.valueOf(quantity)));
 
             Picasso.with(this).load(currentPhotoUri)
                     .placeholder(R.drawable.ic_new_image)
@@ -195,7 +191,7 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
         nameTextView.setText("");
         priceTextView.setText("");
         supplierTextView.setText("");
-        quantityOrderedTextView.setText("");
+        quantityTextView.setText("");
     }
 
     private void updateStock() {

@@ -97,8 +97,8 @@
     <string name="supplier_unknown">Unknown</string>
 
     <string name="permission">You need permission to access images from the device</string>
-    <string name="order">Order one</string>
+    <string name="order">Order</string>
     <string name="ask_for_more">Request shipment</string>
-    <string name="no_stock">We\'re sorry! There\'s no more stock available for this product You can request a shipment instead</string>
+    <string name="no_stock">We\'re sorry! There\'s no more stock available for this product.\nYou can request a shipment instead</string>
 </resources>
 

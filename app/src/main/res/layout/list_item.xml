@@ -12,10 +12,11 @@
 
     <ImageView
         android:id="@+id/product_image"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_new_image"
-        android:contentDescription="@string/category_image" />
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/category_image"
+        android:src="@drawable/ic_new_image" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -43,6 +44,23 @@
             android:textAppearance="?android:textAppearanceSmall"
             android:textColor="#AEB6BD"
             tools:text="Supplier" />
+
+        <TextView
+            android:id="@+id/quantity_ordered"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_top"
+            android:fontFamily="sans-serif"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/colorAccent"
+            tools:text="QUANTITY ORDERED: 10 kg" />
+
+        <TextView
+            android:id="@+id/total_order"
+            style="@style/SecondaryText"
+            android:layout_marginLeft="0dp"
+            tools:text="TOTAL: 9.35 $" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -66,10 +84,19 @@
             android:id="@+id/quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="4dp"
             android:layout_gravity="end"
+            android:paddingTop="4dp"
             android:textColor="@color/colorAccent"
             android:textSize="14sp"
             tools:text="Quantity: 10" />
+
+        <ImageView
+            android:id="@+id/buy_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/order"
+            android:src="@drawable/ic_buy" />
     </LinearLayout>
 </LinearLayout>

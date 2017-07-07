@@ -41,40 +41,34 @@ import butterknife.ButterKnife;
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    /**
+     * Photo request code
+     */
+    public static final int PHOTO_REQUEST_CODE = 20;
+    public static final int EXTERNAL_STORAGE_REQUEST_PERMISSION_CODE = 21;
     /** Identifier for the fruit data loader */
     private static final int EXISTING_FRUIT_LOADER = 0;
-
-    /** Content URI for the existing fruit (null if it's a new fruit) */
-    private Uri mCurrentFruitUri;
-
     @Bind(R.id.scrollview)
     ScrollView scrollView;
-
     /** EditText field to enter the fruit's name */
     @Bind(R.id.edit_fruit_name)
     EditText mNameEditText;
-
     /** EditText field to enter the fruit's price */
     @Bind(R.id.edit_fruit_price)
     EditText mPriceEditText;
-
     /** EditText field to enter the fruit's quantity */
     @Bind(R.id.edit_fruit_quantity)
     EditText mQuantityEditText;
-
     /** EditText field to enter the fruit's supplier */
     @Bind(R.id.edit_fruit_supplier)
     EditText mSupplierEditText;
-
     /** ImageView for the fruit's picture */
     @Bind(R.id.image_fruit_picture)
     ImageView mPictureImageView;
-
-    /** Photo request code */
-    public static final int PHOTO_REQUEST_CODE = 20;
-
-    public static final int EXTERNAL_STORAGE_REQUEST_PERMISSION_CODE = 21;
-
+    /**
+     * Content URI for the existing fruit (null if it's a new fruit)
+     */
+    private Uri mCurrentFruitUri;
     /** Default URI when there isn't any image of the fruit */
     private String currentPhotoUri = "no image available";
 
@@ -177,10 +171,12 @@ public class EditorActivity extends AppCompatActivity implements
         // Check if this is supposed to be a new fruit
         // and check if all the fields in the editor are blank
         if (mCurrentFruitUri == null &&
-                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
-                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierString)) {
+                TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) ||
+                TextUtils.isEmpty(quantityString) || TextUtils.isEmpty(supplierString)) {
             // Since no fields were modified, we can return early without creating a new fruit.
             // No need to create ContentValues and no need to do any ContentProvider operations.
+            Toast.makeText(this, "Please, insert all required information.",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 

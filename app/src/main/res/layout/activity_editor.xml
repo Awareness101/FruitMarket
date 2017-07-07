@@ -116,7 +116,8 @@
                 <!-- Image field -->
                 <ImageView
                     android:id="@+id/image_fruit_picture"
-                    style="@style/ImageStyle"/>
+                    style="@style/ImageStyle"
+                    android:contentDescription="@string/category_image" />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

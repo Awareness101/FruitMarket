@@ -20,7 +20,8 @@
 
             <ImageView
                 android:id="@+id/fruit_image"
-                style="@style/ImageStyle" />
+                style="@style/ImageStyle"
+                android:contentDescription="@string/category_image" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -59,23 +60,35 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/activity_margin"
                 android:orientation="vertical">
 
-                <ImageButton
-                    android:id="@+id/buy_icon"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@drawable/ic_buy" />
+                <Button
+                    android:id="@+id/increase_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@color/colorAccent"
+                    android:text="+"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@android:color/white" />
 
                 <TextView
                     android:id="@+id/buy_text"
                     style="@style/SecondaryText"
-                    android:layout_below="@id/buy_icon"
                     android:layout_marginLeft="0dp"
                     android:maxWidth="75dp"
-                    android:text="@string/order"
-                    android:layout_gravity="center_horizontal"/>
+                    android:text="@string/order" />
+
+                <Button
+                    android:id="@+id/decrease_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="@dimen/margin_top"
+                    android:background="@color/colorAccent"
+                    android:text="-"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@android:color/white" />
             </LinearLayout>
 
             <LinearLayout
@@ -88,40 +101,15 @@
                     android:layout_width="70dp"
                     android:layout_height="70dp"
                     android:layout_marginLeft="25dp"
-                    android:layout_toRightOf="@id/buy_icon"
                     android:background="@drawable/ic_shipment" />
 
                 <TextView
                     style="@style/SecondaryText"
-                    android:layout_below="@id/shipment_icon"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="8dp"
-                    android:layout_toRightOf="@id/buy_icon"
                     android:maxWidth="75dp"
-                    android:text="@string/ask_for_more"
-                    android:layout_gravity="center_horizontal"/>
+                    android:text="@string/ask_for_more" />
             </LinearLayout>
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/quantity_ordered"
-                style="@style/SecondaryText"
-                android:layout_marginLeft="0dp"
-                tools:text="QUANTITY ORDERED: 5 kg" />
-
-            <TextView
-                android:id="@+id/total_order"
-                style="@style/MainText"
-                android:layout_marginLeft="0dp"
-                tools:text="TOTAL: 9.35 $" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

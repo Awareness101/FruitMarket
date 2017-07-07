@@ -10,11 +10,20 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
 import com.squareup.picasso.Picasso;
 
 class FruitCursorAdapter extends CursorAdapter {
+
+    private TextView priceTextView;
+    private TextView quantityTextView;
+    private TextView quantityOrderedTextView;
+    private TextView totalTextView;
+
+    private int quantityOrdered = 0;
+    private double total;
 
     /**
      * Constructs a new {@link FruitCursorAdapter}.
@@ -52,13 +61,16 @@ class FruitCursorAdapter extends CursorAdapter {
      *                correct row.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
         // Find individual views that we want to modify in the list item layout
         ImageView pictureImageView = (ImageView) view.findViewById(R.id.product_image);
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
         TextView supplierTextView = (TextView) view.findViewById(R.id.supplier);
-        TextView priceTextView = (TextView) view.findViewById(R.id.price);
-        TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
+        priceTextView = (TextView) view.findViewById(R.id.price);
+        quantityTextView = (TextView) view.findViewById(R.id.quantity);
+        quantityOrderedTextView = (TextView) view.findViewById(R.id.quantity_ordered);
+        totalTextView = (TextView) view.findViewById(R.id.total_order);
+        ImageView orderImageView = (ImageView) view.findViewById(R.id.buy_icon);
 
         // Find the columns of fruit attributes that we're interested in
         int pictureColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_PICTURE);
@@ -83,12 +95,40 @@ class FruitCursorAdapter extends CursorAdapter {
         // Update the TextViews with the attributes for the current fruit
         nameTextView.setText(fruitName);
         supplierTextView.setText(fruitSupplier);
-        priceTextView.setText(fruitPrice + " $/kg");
-        quantityTextView.setText("Quantity: " + fruitQuantity);
+        priceTextView.setText(String.format("%s $/kg", fruitPrice));
+        quantityTextView.setText("Quantity: " + fruitQuantity + " kg");
         Picasso.with(context).load(fruitPicture)
                 .placeholder(R.drawable.ic_new_image)
 
                 .fit()
                 .into(pictureImageView);
+        quantityOrderedTextView.setText("QUANTITY ORDERED: " + quantityOrdered + " kg");
+        totalTextView.setText("TOTAL: " + String.format("%.2f", total) + " $");
+
+        orderImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateStock(context);
+            }
+        });
+    }
+
+    private void updateStock(Context context) {
+        String[] aux = quantityTextView.getText().toString().split(" ");
+        int stock = Integer.parseInt(aux[1]);
+
+        String[] temp = priceTextView.getText().toString().split(" ");
+        double price = Double.parseDouble(temp[0]);
+
+        if (stock > 0) {
+            stock--;
+            quantityTextView.setText("Quantity: " + stock + " kg");
+            quantityOrdered++;
+            quantityOrderedTextView.setText("QUANTITY ORDERED: " + quantityOrdered + " kg");
+            total = price * quantityOrdered;
+            totalTextView.setText("TOTAL: " + String.format("%.2f", total) + " $");
+        } else {
+            Toast.makeText(context, R.string.no_stock, Toast.LENGTH_LONG).show();
+        }
     }
 }
