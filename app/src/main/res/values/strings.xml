@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 by Francis Gálvez.
+  -->
+<resources>
+    <!-- Name for the application -->
+    <string name="app_name">Fruit Market</string>
+
+    <!-- Label for overflow menu option that inserts fake fruit data into the app -->
+    <string name="action_insert_dummy_data">Insert Dummy Data</string>
+
+    <!-- Label for overflow menu option that deletes all fruit data in the app -->
+    <string name="action_delete_all_entries">Delete All Fruits</string>
+
+    <!-- Title text for the empty view -->
+    <string name="empty_view_title_text">Oops! You don\'t have any fruit available</string>
+
+    <!-- Subtitle text for the empty view that prompts the user to add a fruit -->
+    <string name="empty_view_subtitle_text">Get started by adding a fruit</string>
+
+    <!-- Title for the activity to add a new fruit -->
+    <string name="editor_activity_title_new_fruit">Add a Fruit</string>
+
+    <!-- Title for the activity to edit an existing fruit -->
+    <string name="editor_activity_title_edit_fruit">Edit Fruit</string>
+
+    <!-- Label for editor menu option to save fruit and leave editor -->
+    <string name="action_save">Save</string>
+
+    <!-- Label for editor overflow menu option that deletes the current fruit -->
+    <string name="action_delete">Delete</string>
+
+    <!-- Toast message in editor when new fruit has been successfully inserted -->
+    <string name="editor_insert_fruit_successful">Fruit saved</string>
+
+    <!-- Toast message in editor when new fruit has failed to be inserted -->
+    <string name="editor_insert_fruit_failed">Error with saving fruit</string>
+
+    <!-- Toast message in editor when current fruit was successfully updated -->
+    <string name="editor_update_fruit_successful">Fruit updated</string>
+
+    <!-- Toast message in editor when current fruit has failed to be updated -->
+    <string name="editor_update_fruit_failed">Error with updating Fruit</string>
+
+    <!-- Dialog message when user is leaving editor but hasn't saved changes -->
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
+
+    <!-- Dialog button text for the option to discard a user's changes -->
+    <string name="discard">Discard</string>
+
+    <!-- Dialog button text for the option to keep editing the current fruit -->
+    <string name="keep_editing">Keep Editing</string>
+
+    <!-- Toast message in editor when current fruit was successfully deleted -->
+    <string name="editor_delete_fruit_successful">Fruit deleted</string>
+
+    <!-- Toast message in editor when current fruit has failed to be deleted -->
+    <string name="editor_delete_fruit_failed">Error with deleting fruit</string>
+
+    <!-- Dialog message to ask the user to confirm deleting the current fruit -->
+    <string name="delete_dialog_msg">Delete this fruit?</string>
+
+    <!-- Dialog button text for the option to confirm deleting the current fruit -->
+    <string name="delete">Delete</string>
+
+    <!-- Dialog button text for the option to cancel deletion of the current fruit -->
+    <string name="cancel">Cancel</string>
+
+    <!-- Label for overview category of attributes in the editor -->
+    <string name="category_overview">Overview</string>
+
+    <!-- Label for quantity information in the editor -->
+    <string name="category_quantity">Quantity</string>
+
+    <!-- Label for price information in the editor -->
+    <string name="category_price">Price</string>
+
+    <!-- Label for image information in the editor -->
+    <string name="category_image">Image</string>
+
+    <!-- Text hint for name field in the editor -->
+    <string name="hint_fruit_name">Name</string>
+
+    <!-- Text hint for price field in the editor -->
+    <string name="hint_fruit_price">Price</string>
+
+    <!-- Text hint for supplier field in the editor -->
+    <string name="hint_fruit_supplier">Supplier</string>
+
+    <!-- Text hint for quantity field in the editor -->
+    <string name="hint_fruit_quantity">Quantity</string>
+
+    <!-- Units for price of the fruit (dolars per kilogram) -->
+    <string name="unit_fruit_price">$/kg</string>
+
+    <!-- Label for dropdown menu option if the fruit's supplier is unknown -->
+    <string name="supplier_unknown">Unknown</string>
+
+    <string name="permission">You need permission to access images from the device</string>
+    <string name="order">Order one</string>
+    <string name="ask_for_more">Request shipment</string>
+    <string name="no_stock">We\'re sorry! There\'s no more stock available for this product You can request a shipment instead</string>
+</resources>
+

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 by Francis Gálvez.
+  -->
+<!-- Layout for the editor -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollview"
+    style="@style/ScrollView">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="@style/MatchWrap"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_margin"
+        tools:context=".EditorActivity">
+
+        <!-- Overview category -->
+        <LinearLayout
+            style="@style/Subcategories">
+
+            <!-- Label -->
+            <TextView
+                style="@style/CategoryStyle"
+                android:text="@string/category_overview" />
+
+            <!-- Input fields -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingLeft="4dp">
+
+                <!-- Name field -->
+                <EditText
+                    android:id="@+id/edit_fruit_name"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_fruit_name"
+                    android:inputType="textCapWords" />
+
+                <!-- Price field -->
+                <EditText
+                    android:id="@+id/edit_fruit_supplier"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_fruit_supplier"
+                    android:inputType="textCapWords" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Quantity category -->
+        <LinearLayout
+            android:id="@+id/container_quantity"
+            style="@style/Subcategories">
+
+            <!-- Label -->
+            <TextView
+                style="@style/CategoryStyle"
+                android:text="@string/category_quantity" />
+
+            <!-- Input fields -->
+            <RelativeLayout
+                style="@style/EditTextLayout">
+
+                <!-- Quantity field -->
+                <EditText
+                    android:id="@+id/edit_fruit_quantity"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_fruit_quantity"
+                    android:inputType="number" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <!-- Price category -->
+        <LinearLayout
+            android:id="@+id/container_price"
+            style="@style/Subcategories">
+
+            <!-- Label -->
+            <TextView
+                style="@style/CategoryStyle"
+                android:text="@string/category_price" />
+
+            <!-- Input fields -->
+            <RelativeLayout
+                style="@style/EditTextLayout">
+
+                <!-- Price field -->
+                <EditText
+                    android:id="@+id/edit_fruit_price"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_fruit_price"
+                    android:inputType="numberDecimal" />
+
+                <!-- Units for price ($) -->
+                <TextView
+                    android:id="@+id/label_price_units"
+                    style="@style/EditorUnitsStyle"
+                    android:text="@string/unit_fruit_price" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <!-- Image category -->
+        <LinearLayout
+            android:id="@+id/container_image"
+            style="@style/Subcategories">
+
+            <!-- Label -->
+            <TextView
+                style="@style/CategoryStyle"
+                android:text="@string/category_image" />
+
+            <!-- Input fields -->
+            <RelativeLayout
+                style="@style/EditTextLayout">
+
+                <!-- Image field -->
+                <ImageView
+                    android:id="@+id/image_fruit_picture"
+                    style="@style/ImageStyle"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

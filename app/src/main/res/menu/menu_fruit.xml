@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 by Francis Gálvez.
+  -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/submit"
+        android:icon="@drawable/ic_submit"
+        android:title="@string/action_save"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/edit_fruit"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/editor_activity_title_edit_fruit"
+        app:showAsAction="always" />
+</menu>
