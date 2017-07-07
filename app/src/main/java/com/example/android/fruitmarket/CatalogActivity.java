@@ -3,10 +3,12 @@
  */
 package com.example.android.fruitmarket;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -88,6 +90,7 @@ public class CatalogActivity extends AppCompatActivity implements
 
     /**
      * Helper method to insert hardcoded fruit data into the database. For debugging purposes only.
+     * NOT USED.
      */
     private void insertFruit() {
         // Create a ContentValues object where column names are the keys,
@@ -107,6 +110,29 @@ public class CatalogActivity extends AppCompatActivity implements
         Toast.makeText(this, "Dummy data inserted", Toast.LENGTH_SHORT).show();
     }
 
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_all);
+        builder.setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                deleteAllFruits();
+                Toast.makeText(CatalogActivity.this, R.string.catalog_delete_fruit_successful,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setTitle("Delete All Fruits");
+        alertDialog.show();
+    }
+
     /**
      * Helper method to delete all fruits in the database.
      */
@@ -119,13 +145,9 @@ public class CatalogActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
-            // Respond to a click on the "Insert dummy data" menu option
-            case R.id.action_insert_dummy_data:
-                insertFruit();
-                return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                deleteAllFruits();
+                showDeleteConfirmationDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -148,6 +170,8 @@ public class CatalogActivity extends AppCompatActivity implements
                 FruitEntry.COLUMN_FRUIT_QUANTITY,
                 FruitEntry.COLUMN_FRUIT_PICTURE,
                 FruitEntry.COLUMN_FRUIT_SUPPLIER,
+                FruitEntry.COLUMN_FRUIT_TOTAL,
+                FruitEntry.COLUMN_FRUIT_QUANTITY_ORDERED,
                 FruitEntry.COLUMN_FRUIT_PRICE};
 
         // This loader will execute the ContentProvider's query method on a background thread

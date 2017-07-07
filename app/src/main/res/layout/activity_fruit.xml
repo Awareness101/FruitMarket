@@ -68,6 +68,7 @@
                     android:id="@+id/increase_button"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginLeft="@dimen/activity_margin"
                     android:background="@color/colorAccent"
                     android:text="+"
                     android:textAppearance="?android:textAppearanceMedium"
@@ -76,14 +77,16 @@
                 <TextView
                     android:id="@+id/buy_text"
                     style="@style/SecondaryText"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="0dp"
                     android:maxWidth="75dp"
-                    android:text="@string/order" />
+                    android:text="@string/category_quantity" />
 
                 <Button
                     android:id="@+id/decrease_button"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginLeft="@dimen/activity_margin"
                     android:layout_marginTop="@dimen/margin_top"
                     android:background="@color/colorAccent"
                     android:text="-"
@@ -110,6 +113,29 @@
                     android:maxWidth="75dp"
                     android:text="@string/ask_for_more" />
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/activity_margin">
+
+            <TextView
+                android:id="@+id/quantity_ordered"
+                style="@style/SecondaryText"
+                android:layout_marginLeft="0dp"
+                android:textAllCaps="true"
+                tools:text="QUANTITY ORDERED = 10" />
+
+            <TextView
+                android:id="@+id/total_order"
+                style="@style/MainText"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="0dp"
+                android:textAllCaps="true"
+                tools:text="TOTAL: 10.70 $" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

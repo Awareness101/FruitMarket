@@ -3,17 +3,21 @@
  */
 package com.example.android.fruitmarket;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,12 +28,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
-import com.squareup.picasso.Picasso;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class FruitActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    public static final String LOG_TAG = FruitActivity.class.getSimpleName();
 
     @Bind(R.id.fruit_image)
     ImageView photoImageView;
@@ -41,6 +50,10 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
     TextView supplierTextView;
     @Bind(R.id.fruit_quantity)
     TextView quantityTextView;
+    @Bind(R.id.quantity_ordered)
+    TextView quantityOrderedTextView;
+    @Bind(R.id.total_order)
+    TextView totalTextView;
     @Bind(R.id.increase_button)
     Button increaseButton;
     @Bind(R.id.decrease_button)
@@ -119,12 +132,64 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
                 updateStock();
                 finish();
                 return true;
-            case R.id.home:
-                // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
+            case R.id.action_delete:
+                showDeleteConfirmationDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Prompt the user to confirm that they want to delete this fruit.
+     */
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the postivie and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the fruit.
+                deleteFruit();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the fruit.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void deleteFruit() {
+        // Only perform the delete if this is an existing fruit.
+        if (currentFruitUri != null) {
+            // Call the ContentResolver to delete the fruit at the given content URI.
+            // Pass in null for the selection and selection args because the mCurrentFruitUri
+            // content URI already identifies the fruit that we want.
+            int rowsDeleted = getContentResolver().delete(currentFruitUri, null, null);
+
+            // Show a toast message depending on whether or not the delete was successful.
+            if (rowsDeleted == 0) {
+                // If no rows were deleted, then there was an error with the delete.
+                Toast.makeText(this, getString(R.string.editor_delete_fruit_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the delete was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_delete_fruit_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        // Close the activity
+        finish();
     }
 
     @Override
@@ -136,6 +201,8 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
                 FruitEntry.COLUMN_FRUIT_NAME,
                 FruitEntry.COLUMN_FRUIT_PRICE,
                 FruitEntry.COLUMN_FRUIT_QUANTITY,
+                FruitEntry.COLUMN_FRUIT_QUANTITY_ORDERED,
+                FruitEntry.COLUMN_FRUIT_TOTAL,
                 FruitEntry.COLUMN_FRUIT_SUPPLIER,
                 FruitEntry.COLUMN_FRUIT_PICTURE};
 
@@ -164,24 +231,26 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
             int quantityColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_QUANTITY);
             int supplierColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_SUPPLIER);
             int imageColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_PICTURE);
+            int qOrderedColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_QUANTITY_ORDERED);
+            int totalColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_TOTAL);
 
             // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
             String supplier = cursor.getString(supplierColumnIndex);
             Double price = cursor.getDouble(priceColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
-            String currentPhotoUri = cursor.getString(imageColumnIndex);
+            int quantityOrdered = cursor.getInt(qOrderedColumnIndex);
+            Double total = cursor.getDouble(totalColumnIndex);
+            Uri currentPhotoUri = Uri.parse(cursor.getString(imageColumnIndex));
 
             // Update the views on the screen with the values from the database
             nameTextView.setText(name);
             priceTextView.setText(String.format("%s $/kg", String.valueOf(price)));
             supplierTextView.setText(supplier);
             quantityTextView.setText(String.format("%s kg", String.valueOf(quantity)));
-
-            Picasso.with(this).load(currentPhotoUri)
-                    .placeholder(R.drawable.ic_new_image)
-                    .fit()
-                    .into(photoImageView);
+            quantityOrderedTextView.setText("Quantity ordered: " + quantityOrdered + " kg");
+            totalTextView.setText("Total: " + total + " $/kg");
+            photoImageView.setImageBitmap(getBitmapFromUri(currentPhotoUri));
         }
     }
 
@@ -192,6 +261,8 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
         priceTextView.setText("");
         supplierTextView.setText("");
         quantityTextView.setText("");
+        quantityOrderedTextView.setText("");
+        totalTextView.setText("");
     }
 
     private void updateStock() {
@@ -235,5 +306,54 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
         intent.setData(currentFruitUri);
         startActivity(intent);
         finish();
+    }
+
+    public Bitmap getBitmapFromUri(Uri uri) {
+        if (uri == null || uri.toString().isEmpty())
+            return null;
+
+        // Get the dimensions of the View
+        int targetW = photoImageView.getWidth();
+        int targetH = photoImageView.getHeight();
+
+        InputStream input = null;
+        try {
+            input = this.getContentResolver().openInputStream(uri);
+
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+
+            input = this.getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+            return bitmap;
+
+        } catch (FileNotFoundException fne) {
+            Log.e(LOG_TAG, "Failed to load image.", fne);
+            return null;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ioe) {
+
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ package com.example.android.fruitmarket.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
 
 class FruitDbHelper extends SQLiteOpenHelper {
@@ -40,6 +41,8 @@ class FruitDbHelper extends SQLiteOpenHelper {
                 + FruitEntry.COLUMN_FRUIT_PRICE + " REAL NOT NULL, "
                 + FruitEntry.COLUMN_FRUIT_QUANTITY + " INTEGER NOT NULL DEFAULT 0, "
                 + FruitEntry.COLUMN_FRUIT_SUPPLIER + " TEXT DEFAULT 'UNKNOWN', "
+                + FruitEntry.COLUMN_FRUIT_QUANTITY_ORDERED + " INTEGER DEFAULT 0, "
+                + FruitEntry.COLUMN_FRUIT_TOTAL + " REAL DEFAULT 0.0, "
                 + FruitEntry.COLUMN_FRUIT_PICTURE + " TEXT NOT NULL DEFAULT 'NO IMAGE AVAILABLE');";
 
         // Execute the SQL statement

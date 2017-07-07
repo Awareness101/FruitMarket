@@ -1,9 +1,14 @@
 package com.example.android.fruitmarket;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +18,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
-import com.squareup.picasso.Picasso;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 class FruitCursorAdapter extends CursorAdapter {
 
-    private TextView priceTextView;
-    private TextView quantityTextView;
-    private TextView quantityOrderedTextView;
-    private TextView totalTextView;
-
-    private int quantityOrdered = 0;
-    private double total;
+    private static final String LOG_TAG = FruitCursorAdapter.class.getSimpleName();
 
     /**
      * Constructs a new {@link FruitCursorAdapter}.
@@ -61,74 +63,122 @@ class FruitCursorAdapter extends CursorAdapter {
      *                correct row.
      */
     @Override
-    public void bindView(View view, final Context context, Cursor cursor) {
+    public void bindView(final View view, final Context context, Cursor cursor) {
         // Find individual views that we want to modify in the list item layout
         ImageView pictureImageView = (ImageView) view.findViewById(R.id.product_image);
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
         TextView supplierTextView = (TextView) view.findViewById(R.id.supplier);
-        priceTextView = (TextView) view.findViewById(R.id.price);
-        quantityTextView = (TextView) view.findViewById(R.id.quantity);
-        quantityOrderedTextView = (TextView) view.findViewById(R.id.quantity_ordered);
-        totalTextView = (TextView) view.findViewById(R.id.total_order);
+        TextView priceTextView = (TextView) view.findViewById(R.id.price);
+        TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
+        TextView quantityOrderedTextView = (TextView) view.findViewById(R.id.quantity_ordered);
+        TextView totalTextView = (TextView) view.findViewById(R.id.total_order);
         ImageView orderImageView = (ImageView) view.findViewById(R.id.buy_icon);
 
         // Find the columns of fruit attributes that we're interested in
-        int pictureColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_PICTURE);
+        int idColumnIndex = cursor.getColumnIndex(FruitEntry._ID);
+        int imageColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_PICTURE);
         int nameColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_NAME);
         int supplierColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_SUPPLIER);
         int priceColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_PRICE);
         int quantityColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_QUANTITY);
+        int qOrderedColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_QUANTITY_ORDERED);
+        int totalColumnIndex = cursor.getColumnIndex(FruitEntry.COLUMN_FRUIT_TOTAL);
 
         // Read the fruit attributes from the Cursor for the current fruit
-        Uri fruitPicture = Uri.parse(cursor.getString(pictureColumnIndex));
+        Uri currentPhotoUri = Uri.parse(cursor.getString(imageColumnIndex));
+        int inventoryId = cursor.getInt(idColumnIndex);
         String fruitName = cursor.getString(nameColumnIndex);
         String fruitSupplier = cursor.getString(supplierColumnIndex);
-        String fruitPrice = cursor.getString(priceColumnIndex);
-        String fruitQuantity = cursor.getString(quantityColumnIndex);
+        final Double fruitPrice = cursor.getDouble(priceColumnIndex);
+        final int fruitQuantity = cursor.getInt(quantityColumnIndex);
+        final int quantityOrdered = cursor.getInt(qOrderedColumnIndex);
+        Double totalPvp = cursor.getDouble(totalColumnIndex);
 
-        // If the fruit supplier is empty string or null, then use some default text
-        // that says "Unknown supplier", so the TextView isn't blank.
-        if (TextUtils.isEmpty(fruitSupplier)) {
-            fruitSupplier = context.getString(R.string.supplier_unknown);
-        }
+        final Uri currentItemUri = ContentUris.withAppendedId(FruitEntry.CONTENT_URI, inventoryId);
 
         // Update the TextViews with the attributes for the current fruit
         nameTextView.setText(fruitName);
         supplierTextView.setText(fruitSupplier);
         priceTextView.setText(String.format("%s $/kg", fruitPrice));
         quantityTextView.setText("Quantity: " + fruitQuantity + " kg");
-        Picasso.with(context).load(fruitPicture)
-                .placeholder(R.drawable.ic_new_image)
-
-                .fit()
-                .into(pictureImageView);
-        quantityOrderedTextView.setText("QUANTITY ORDERED: " + quantityOrdered + " kg");
-        totalTextView.setText("TOTAL: " + String.format("%.2f", total) + " $");
+        quantityOrderedTextView.setText("Quantity ordered: " + quantityOrdered + " kg");
+        totalTextView.setText("Total: " + totalPvp + " $");
+        pictureImageView.setImageBitmap(getBitmapFromUri(currentPhotoUri, context));
 
         orderImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateStock(context);
+                ContentResolver resolver = v.getContext().getContentResolver();
+                int stock = fruitQuantity;
+
+                Log.e(LOG_TAG, "Stock is " + stock);
+
+                if (stock == 0) {
+                    Toast.makeText(v.getContext(), R.string.no_stock,
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                double price = fruitPrice;
+                int orderedAux = quantityOrdered + 1;
+                double total = price * orderedAux;
+
+                ContentValues values = new ContentValues();
+                values.put(FruitEntry.COLUMN_FRUIT_QUANTITY, --stock);
+                values.put(FruitEntry.COLUMN_FRUIT_TOTAL, total);
+                values.put(FruitEntry.COLUMN_FRUIT_QUANTITY_ORDERED, orderedAux);
+                resolver.update(currentItemUri, values, null, null);
+                context.getContentResolver().notifyChange(currentItemUri, null);
             }
         });
     }
 
-    private void updateStock(Context context) {
-        String[] aux = quantityTextView.getText().toString().split(" ");
-        int stock = Integer.parseInt(aux[1]);
+    private Bitmap getBitmapFromUri(Uri uri, Context context) {
+        if (uri == null || uri.toString().isEmpty())
+            return null;
 
-        String[] temp = priceTextView.getText().toString().split(" ");
-        double price = Double.parseDouble(temp[0]);
+        // Get the dimensions of the View
+        // int targetW = pictureImageView.getWidth();
+        // int targetH = pictureImageView.getHeight();
 
-        if (stock > 0) {
-            stock--;
-            quantityTextView.setText("Quantity: " + stock + " kg");
-            quantityOrdered++;
-            quantityOrderedTextView.setText("QUANTITY ORDERED: " + quantityOrdered + " kg");
-            total = price * quantityOrdered;
-            totalTextView.setText("TOTAL: " + String.format("%.2f", total) + " $");
-        } else {
-            Toast.makeText(context, R.string.no_stock, Toast.LENGTH_LONG).show();
+        InputStream input = null;
+        try {
+            input = context.getContentResolver().openInputStream(uri);
+
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+
+            //int photoW = bmOptions.outWidth;
+            //int photoH = bmOptions.outHeight;
+
+            // Determine how much to scale down the image
+            //int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            //bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+
+            input = context.getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+            return bitmap;
+
+        } catch (FileNotFoundException fne) {
+            Log.e(LOG_TAG, "Failed to load image.", fne);
+            return null;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ioe) {
+
+            }
         }
     }
 }

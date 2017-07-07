@@ -60,8 +60,14 @@
     <!-- Dialog message to ask the user to confirm deleting the current fruit -->
     <string name="delete_dialog_msg">Delete this fruit?</string>
 
+    <!-- Toast message in editor when current fruit was successfully deleted -->
+    <string name="catalog_delete_fruit_successful">All Fruits deleted</string>
+
     <!-- Dialog button text for the option to confirm deleting the current fruit -->
     <string name="delete">Delete</string>
+
+    <!-- Dialog button text for the option to confirm deleting all fruits -->
+    <string name="delete_all">Delete all fruits?</string>
 
     <!-- Dialog button text for the option to cancel deletion of the current fruit -->
     <string name="cancel">Cancel</string>
@@ -93,12 +99,14 @@
     <!-- Units for price of the fruit (dolars per kilogram) -->
     <string name="unit_fruit_price">$/kg</string>
 
-    <!-- Label for dropdown menu option if the fruit's supplier is unknown -->
+    <!-- Text for whether the fruit's supplier is unknown -->
     <string name="supplier_unknown">Unknown</string>
 
     <string name="permission">You need permission to access images from the device</string>
-    <string name="order">Order</string>
+    <string name="order">Modify quantity</string>
+    <string name="quantity_ordered">Quantity ordered</string>
+    <string name="total">Total: </string>
     <string name="ask_for_more">Request shipment</string>
-    <string name="no_stock">We\'re sorry! There\'s no more stock available for this product.\nYou can request a shipment instead</string>
+    <string name="no_stock">We\'re sorry! There\'s no more stock available of this product.</string>
 </resources>
 
