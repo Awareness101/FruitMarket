@@ -249,7 +249,7 @@ public class FruitActivity extends AppCompatActivity implements LoaderManager.Lo
             quantityTextView.setText(String.format("%s kg", String.valueOf(quantity)));
             quantityOrderedTextView.setText("Quantity ordered: " + quantityOrdered + " kg");
             totalTextView.setText("Total: " + total + " $/kg");
-            photoImageView.setImageBitmap(image);
+            photoImageView.setImageBitmap(Bitmap.createScaledBitmap(image, 250, 250, false));
         }
     }
 

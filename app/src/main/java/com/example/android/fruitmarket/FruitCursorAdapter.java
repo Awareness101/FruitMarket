@@ -98,7 +98,7 @@ class FruitCursorAdapter extends CursorAdapter {
         quantityTextView.setText("Quantity: " + fruitQuantity + " kg");
         quantityOrderedTextView.setText("Quantity ordered: " + quantityOrdered + " kg");
         totalTextView.setText("Total: " + totalPvp + " $");
-        pictureImageView.setImageBitmap(image);
+        pictureImageView.setImageBitmap(Bitmap.createScaledBitmap(image, 250, 250, false));
 
         orderImageView.setOnClickListener(new View.OnClickListener() {
             @Override

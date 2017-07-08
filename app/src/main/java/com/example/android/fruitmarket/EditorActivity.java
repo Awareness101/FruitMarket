@@ -99,8 +99,9 @@ public class EditorActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        // setting default system image icon in case user didnt upload a image
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_new_image);
-        imageByte = Utils.getBytes(bm); // setting default system image icon in case user didnt upload a image
+        imageByte = Utils.getBytes(Bitmap.createScaledBitmap(bm, 250, 250, false));
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new fruit or editing an existing one.
@@ -381,7 +382,7 @@ public class EditorActivity extends AppCompatActivity implements
             mSupplierEditText.setText(supplier);
             mQuantityEditText.setText(String.valueOf(quantity));
 
-            mPictureImageView.setImageBitmap(image);
+            mPictureImageView.setImageBitmap(Bitmap.createScaledBitmap(image, 250, 250, false));
         }
     }
 
@@ -536,8 +537,8 @@ public class EditorActivity extends AppCompatActivity implements
             }
         }
         mPictureImageView.setVisibility(View.VISIBLE);
-        mPictureImageView.setImageBitmap(bm);
+        mPictureImageView.setImageBitmap(Bitmap.createScaledBitmap(bm, 250, 250, false));
 
-        this.imageByte = Utils.getBytes(bm);
+        this.imageByte = Utils.getBytes(Bitmap.createScaledBitmap(bm, 250, 250, false));
     }
 }
