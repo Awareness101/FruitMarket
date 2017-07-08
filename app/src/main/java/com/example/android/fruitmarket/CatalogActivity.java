@@ -6,7 +6,6 @@ package com.example.android.fruitmarket;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +25,8 @@ import android.widget.Toast;
 
 import com.example.android.fruitmarket.data.FruitContract.FruitEntry;
 
+//import android.content.ContentValues;
+
 public class CatalogActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -33,7 +34,7 @@ public class CatalogActivity extends AppCompatActivity implements
     private static final int FRUIT_LOADER = 0;
 
     /** Adapter for the ListView */
-    FruitCursorAdapter mCursorAdapter;
+    private FruitCursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class CatalogActivity extends AppCompatActivity implements
     /**
      * Helper method to insert hardcoded fruit data into the database. For debugging purposes only.
      * NOT USED.
-     */
+
     private void insertFruit() {
         // Create a ContentValues object where column names are the keys,
         // and Tomato's fruit attributes are the values.
@@ -108,7 +109,7 @@ public class CatalogActivity extends AppCompatActivity implements
         // Receive the new content URI that will allow us to access Tomato's data in the future.
         getContentResolver().insert(FruitEntry.CONTENT_URI, values);
         Toast.makeText(this, "Dummy data inserted", Toast.LENGTH_SHORT).show();
-    }
+     }*/
 
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

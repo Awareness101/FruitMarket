@@ -1,17 +1,12 @@
 /*
  * Copyright (c) 2017 by Francis Gálvez.
  */
-
 package com.example.android.fruitmarket;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
-
-/**
- * Created by Francis Gálvez on 08/07/2017.
- */
 
 class Utils {
     // convert from bitmap to byte array

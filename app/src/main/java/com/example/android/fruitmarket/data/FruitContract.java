@@ -7,7 +7,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public class FruitContract {
+public final class FruitContract {
 
     /**
      * The "Content authority" is a name for the entire content provider, similar to the
@@ -32,6 +32,7 @@ public class FruitContract {
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
     private FruitContract() {
+        throw new AssertionError("No FruitContract instances for you!");
     }
 
     /**

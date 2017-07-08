@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 
 public class FruitActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String LOG_TAG = FruitActivity.class.getSimpleName();
+    //public static final String LOG_TAG = FruitActivity.class.getSimpleName();
 
     @Bind(R.id.fruit_image)
     ImageView photoImageView;
